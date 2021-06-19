@@ -32,6 +32,7 @@ const getTokenData = (address: string, balance: number, weight: number) => ({
   symbol: getTokenSymbolFromAddress(address),
   weight,
   balance,
+  balance1: parseFloat(ethers.utils.formatEther(balance)),
 });
 
 async function getPoolInfo(poolId: string) {
@@ -69,12 +70,53 @@ const getTokenSymbolFromAddress = (inputAddress: string) => {
 
   console.log(JSON.stringify(poolsInfo, null, 4));
 
+  let pricePairs = { BAL: null, DAI: null, WETH: null };
+
   poolsInfo.map(({ tokens }) => {
     const [first, second] = tokens;
 
     const relativePrice =
-      (first.balance / second.balance) * (first.weight / second.weight);
+      (first.balance / second.balance) * (second.weight / first.weight);
 
-    console.log(`${first.symbol}/${second.symbol}: ${relativePrice}`);
+    const nodes = {
+      [first.symbol]: {
+        [second.symbol]: relativePrice,
+      },
+      [second.symbol]: {
+        [first.symbol]: 1 / relativePrice,
+      },
+    };
+
+    for (const token in nodes) {
+      if (!pricePairs[token]) {
+        Object.assign(pricePairs, { ...pricePairs, [token]: nodes[token] });
+      } else {
+        Object.assign(pricePairs, {
+          ...pricePairs,
+          [token]: { ...pricePairs[token], ...nodes[token] },
+        });
+      }
+    }
+    console.log(nodes);
   });
+  console.log(pricePairs);
 })();
+
+// BAL DAI WETH
+// WETH DAI BAL
+
+// BAL WETH DAI
+// DAI WETH BAL
+
+// WETH BAL DAI
+// DAI BAL WETH
+
+// (WETH -> BAL) -> (BAL -> DAI) -> (DAI -> WETH)
+// ((114.5)*19.33)*1/2177.35 = 1,016504007164673
+
+// (DAI -> BAL) -> (BAL -> WETH) -> (WETH -> DAI)
+// ((1/19.33)*(1/114.50))*(2177.35) = 0,983763952676677
+
+// (WETH -> BAL) == (BAL -> ETH)
+// (DAI -> WETH) == (WETH -> DAI)
+// (BAL -> WETH) == (WETH -> BAL)
