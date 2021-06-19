@@ -31,7 +31,7 @@ const getTokenData = (address: string, balance: number, weight: number) => ({
   address,
   symbol: getTokenSymbolFromAddress(address),
   weight,
-  balance: ethers.utils.formatEther(balance),
+  balance,
 });
 
 async function getPoolInfo(poolId: string) {
@@ -62,9 +62,19 @@ const getTokenSymbolFromAddress = (inputAddress: string) => {
 
 (async function () {
   const pools = [balWethPool, balDaiPool, wethDaiPool];
+
   const poolsInfo = await Promise.all(
     pools.map(async (poolId) => getPoolInfo(poolId)),
   );
 
   console.log(JSON.stringify(poolsInfo, null, 4));
+
+  poolsInfo.map(({ tokens }) => {
+    const [first, second] = tokens;
+
+    const relativePrice =
+      (first.balance / second.balance) * (first.weight / second.weight);
+
+    console.log(`${first.symbol}/${second.symbol}: ${relativePrice}`);
+  });
 })();
