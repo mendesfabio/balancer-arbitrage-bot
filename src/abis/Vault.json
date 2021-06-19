@@ -344,9 +344,7 @@
     "type": "event"
   },
   {
-    "inputs": [
-      
-    ],
+    "inputs": [],
     "name": "WETH",
     "outputs": [
       {
@@ -465,9 +463,7 @@
       }
     ],
     "name": "deregisterTokens",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -517,9 +513,7 @@
       }
     ],
     "name": "exitPool",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -547,9 +541,7 @@
       }
     ],
     "name": "flashLoan",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -573,9 +565,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      
-    ],
+    "inputs": [],
     "name": "getAuthorizer",
     "outputs": [
       {
@@ -588,9 +578,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      
-    ],
+    "inputs": [],
     "name": "getDomainSeparator",
     "outputs": [
       {
@@ -646,9 +634,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      
-    ],
+    "inputs": [],
     "name": "getPausedState",
     "outputs": [
       {
@@ -763,9 +749,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      
-    ],
+    "inputs": [],
     "name": "getProtocolFeesCollector",
     "outputs": [
       {
@@ -847,9 +831,7 @@
       }
     ],
     "name": "joinPool",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
@@ -884,9 +866,7 @@
       }
     ],
     "name": "managePoolBalance",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -926,9 +906,7 @@
       }
     ],
     "name": "manageUserBalance",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
@@ -1053,9 +1031,7 @@
       }
     ],
     "name": "registerTokens",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1068,9 +1044,7 @@
       }
     ],
     "name": "setAuthorizer",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1083,9 +1057,7 @@
       }
     ],
     "name": "setPaused",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1108,9 +1080,7 @@
       }
     ],
     "name": "setRelayerApproval",
-    "outputs": [
-      
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

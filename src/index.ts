@@ -1,10 +1,12 @@
-import { ethers } from 'ethers';
-import * as dotenv from 'dotenv';
-
-import vaultAbi from './abis/Vault.json';
+import * as dotenv from "dotenv";
+import { ethers } from "ethers";
+import vaultAbi from "./abis/Vault.json";
 import {
-  vaultAddress, balWethPool, balDaiPool, wethDaiPool,
-} from './constants';
+  balDaiPool,
+  balWethPool,
+  vaultAddress,
+  wethDaiPool,
+} from "./constants";
 
 dotenv.config();
 
@@ -27,10 +29,10 @@ async function getPoolInfo(poolId: string) {
   return poolInfo;
 }
 
-// eslint-disable-next-line func-names
 (async function () {
-  const poolsInfo = await Promise.all(pools.map(async (poolId) => getPoolInfo(poolId)));
+  const poolsInfo = await Promise.all(
+    pools.map(async (poolId) => getPoolInfo(poolId))
+  );
 
-  // eslint-disable-next-line no-console
   console.log(poolsInfo);
-}());
+})();
