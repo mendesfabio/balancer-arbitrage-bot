@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
 import vaultAbi from './lib/eth/abis/Vault.json';
+import poolAbi from './lib/eth/abis/WeightedPool.json';
 import { vaultAddress } from './lib/eth/balancer';
 import { balDaiPool, balWethPool, wethDaiPool } from './lib/eth/balancer/pools';
 import { tokenList } from './lib/eth/tokens';
@@ -16,26 +17,43 @@ const getProvider = () => {
 
 const getVaultContract = () => {
   const provider = getProvider();
+
   return new ethers.Contract(vaultAddress, vaultAbi, provider);
 };
 
-const getTokenData = (address: string, balance: number) => ({
+const getWeightedPoolContract = (poolId: string) => {
+  const provider = getProvider();
+
+  return new ethers.Contract(poolId.slice(0, 42), poolAbi, provider);
+};
+
+const getTokenData = (address: string, balance: number, weight: number) => ({
   address,
   symbol: getTokenSymbolFromAddress(address),
-  weight: undefined,
+  weight,
   balance: ethers.utils.formatEther(balance),
 });
 
 async function getPoolInfo(poolId: string) {
   const vaultContract = getVaultContract();
 
-  const { balances, tokens } = await vaultContract.getPoolTokens(poolId);
+  const poolContract = getWeightedPoolContract(poolId);
 
-  const tokenInfo = tokens.map((token, index) =>
-    getTokenData(token, balances[index]),
+  const weights = (await poolContract.getNormalizedWeights()).map(
+    (bn: ethers.BigNumber) => parseFloat(ethers.utils.formatEther(bn)),
   );
 
-  return { poolId, swapFee: undefined, tokens: tokenInfo };
+  const swapFee = parseFloat(
+    ethers.utils.formatEther(await poolContract.getSwapFeePercentage()),
+  );
+
+  const { balances, tokens } = await vaultContract.getPoolTokens(poolId);
+
+  const tokenInfo = tokens.map((token: string, index: number) =>
+    getTokenData(token, balances[index], weights[index]),
+  );
+
+  return { poolId, swapFee, tokens: tokenInfo };
 }
 
 const getTokenSymbolFromAddress = (inputAddress: string) => {
