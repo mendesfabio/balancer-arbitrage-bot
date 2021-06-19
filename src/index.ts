@@ -1,38 +1,52 @@
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
-import vaultAbi from './abis/Vault.json';
-import {
-  balDaiPool,
-  balWethPool,
-  vaultAddress,
-  wethDaiPool,
-} from './constants';
-
+import vaultAbi from './lib/eth/abis/Vault.json';
+import { vaultAddress } from './lib/eth/balancer';
+import { balDaiPool, balWethPool, wethDaiPool } from './lib/eth/balancer/pools';
+import { tokenList } from './lib/eth/tokens';
 dotenv.config();
 
-const infuraEndpoint = String(process.env.INFURA_ENDPOINT);
+const getProvider = () => {
+  const infuraEndpoint = process.env.INFURA_ENDPOINT;
 
-const provider = new ethers.providers.WebSocketProvider(infuraEndpoint);
+  if (!infuraEndpoint) throw Error('Infura endpoint is not defined.');
 
-const vaultContract = new ethers.Contract(vaultAddress, vaultAbi, provider);
+  return new ethers.providers.WebSocketProvider(infuraEndpoint);
+};
 
-const pools = [balWethPool, balDaiPool, wethDaiPool];
+const getVaultContract = () => {
+  const provider = getProvider();
+  return new ethers.Contract(vaultAddress, vaultAbi, provider);
+};
+
+const getTokenData = (address: string, balance: number) => ({
+  address,
+  symbol: getTokenSymbolFromAddress(address),
+  weight: undefined,
+  balance: ethers.utils.formatEther(balance),
+});
 
 async function getPoolInfo(poolId: string) {
+  const vaultContract = getVaultContract();
+
   const { balances, tokens } = await vaultContract.getPoolTokens(poolId);
 
-  const poolInfo = tokens.map((token: string, index: number) => ({
-    token,
-    balance: ethers.utils.formatEther(balances[index]),
-  }));
+  const tokenInfo = tokens.map((token, index) =>
+    getTokenData(token, balances[index]),
+  );
 
-  return poolInfo;
+  return { poolId, swapFee: undefined, tokens: tokenInfo };
 }
 
+const getTokenSymbolFromAddress = (inputAddress: string) => {
+  return tokenList.filter(({ address }) => address == inputAddress)[0].symbol;
+};
+
 (async function () {
+  const pools = [balWethPool, balDaiPool, wethDaiPool];
   const poolsInfo = await Promise.all(
     pools.map(async (poolId) => getPoolInfo(poolId)),
   );
 
-  console.log(poolsInfo);
+  console.log(JSON.stringify(poolsInfo, null, 4));
 })();
