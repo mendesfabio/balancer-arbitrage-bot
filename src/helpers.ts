@@ -1,8 +1,8 @@
-import { Contract } from "ethers";
+import { Contract } from 'ethers';
 
 export default async function getPoolInfo(
   poolId: string,
-  vaultContract: Contract
+  vaultContract: Contract,
 ) {
   const { balances, tokens } = await vaultContract.getPoolTokens(poolId);
 
