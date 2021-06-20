@@ -2,6 +2,14 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
+    "paths": {
+      "@lib": ["./src/lib"],
+      "@lib/*": ["./src/lib/*"],
+      "@eth": ["./src/lib/eth"],
+      "@eth/*": ["./src/lib/eth/*"],
+      "@balancer": ["./src/lib/eth/balancer"],
+      "@balancer/*": ["./src/lib/eth/balancer/*"]
+    },
     "lib": ["es6"],
     "allowJs": true,
     "outDir": "./dist",
