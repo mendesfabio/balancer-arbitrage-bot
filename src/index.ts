@@ -12,7 +12,7 @@ const getProvider = () => {
 
   if (!infuraEndpoint) throw Error('Infura endpoint is not defined.');
 
-  return new ethers.providers.WebSocketProvider(infuraEndpoint);
+  return new ethers.providers.JsonRpcProvider(infuraEndpoint);
 };
 
 const getVaultContract = () => {
@@ -68,7 +68,7 @@ const getTokenSymbolFromAddress = (inputAddress: string) => {
     pools.map(async (poolId) => getPoolInfo(poolId)),
   );
 
-  console.log(JSON.stringify(poolsInfo, null, 4));
+  // console.log(JSON.stringify(poolsInfo, null, 4));
 
   let pricePairs = { BAL: null, DAI: null, WETH: null };
 
@@ -97,9 +97,72 @@ const getTokenSymbolFromAddress = (inputAddress: string) => {
         });
       }
     }
-    console.log(nodes);
+    //console.log(nodes);
   });
-  console.log(pricePairs);
+  //console.log(pricePairs);
+
+  const paths = []
+
+  for (const token in pricePairs) {
+
+    for (const bar in pricePairs[token]) {
+
+      const first = {pair: [token, bar], price: pricePairs[token][bar]}
+
+      const foo = Object.keys(pricePairs[bar]).filter((item) => item !== token)[0]
+
+      const second = {pair: [bar, foo], price: pricePairs[bar][foo]}
+
+      const third = {pair: [foo, token], price: pricePairs[foo][token]}
+
+      paths.push([first, second, third])
+    }
+  }
+
+  const rates = paths.map(path => {
+    return path.map(({price}) => price).reduce((acc, cur) => {
+      return acc * cur
+    })
+  })
+
+  const kind = 0;
+
+  const assets = [
+    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
+  ]
+
+  const funds = {
+    "sender": "0xE64F06F695De4C4E21BA8F383a2675Fd884Ac720",
+    "recipient": "0xE64F06F695De4C4E21BA8F383a2675Fd884Ac720"
+  }
+
+  const swaps = [
+    {
+      "poolId": "0x0297e37f1873d2dab4487aa67cd56b58e2f27875000200000000000000000003",
+      "assetInIndex": "1",
+      "assetOutIndex": "0",
+      "amount": ethers.utils.parseEther("0.05"),
+      "userData": "0x",
+    },
+    {
+      "poolId": "0xa6f548df93de924d73be7d25dc02554c6bd66db500020000000000000000000e",
+      "assetInIndex": "0",
+      "assetOutIndex": "1",
+      "amount": ethers.utils.parseEther("0.05"),
+      "userData": "0x",
+    }
+  ]
+
+  const vaultContract = getVaultContract();
+
+  const args = [kind, swaps, assets, funds]
+
+  const result = await vaultContract.callStatic.queryBatchSwap(...args);
+
+  console.log('res', result.map((res) => ethers.utils.formatEther(res)));
+
+  console.log(assets, paths[1])
 })();
 
 // BAL DAI WETH
